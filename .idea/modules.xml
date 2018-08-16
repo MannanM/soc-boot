@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/boot/boot.iml" filepath="$PROJECT_DIR$/.idea/modules/boot/boot.iml" group="boot" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/boot/boot_main.iml" filepath="$PROJECT_DIR$/.idea/modules/boot/boot_main.iml" group="boot" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/boot/boot_test.iml" filepath="$PROJECT_DIR$/.idea/modules/boot/boot_test.iml" group="boot" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/core.iml" filepath="$PROJECT_DIR$/.idea/modules/core/core.iml" group="core" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/core_main.iml" filepath="$PROJECT_DIR$/.idea/modules/core/core_main.iml" group="core" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/core_test.iml" filepath="$PROJECT_DIR$/.idea/modules/core/core_test.iml" group="core" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/settlers.iml" filepath="$PROJECT_DIR$/.idea/modules/settlers.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/settlers_main.iml" filepath="$PROJECT_DIR$/.idea/modules/settlers_main.iml" group="settlers" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/settlers_test.iml" filepath="$PROJECT_DIR$/.idea/modules/settlers_test.iml" group="settlers" />
+    </modules>
+  </component>
+</project>

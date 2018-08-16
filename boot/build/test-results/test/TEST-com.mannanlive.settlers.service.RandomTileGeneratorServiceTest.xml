@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.mannanlive.settlers.service.RandomTileGeneratorServiceTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2018-07-24T01:36:12" hostname="Mannans-MacBook-Air.local" time="0.001">
+  <properties/>
+  <testcase name="generate" classname="com.mannanlive.settlers.service.RandomTileGeneratorServiceTest" time="0.001"/>
+  <system-out><![CDATA[[IRON(9), SHEEP(5), WHEAT(5), MUD(8), DESERT(7), SHEEP(9), SHEEP(10), IRON(6), MUD(4), SHEEP(8), MUD(11), IRON(3), WHEAT(12), MUD(4), WHEAT(3), IRON(6), WHEAT(2)]
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

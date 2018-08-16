@@ -1,0 +1,7 @@
+group 'com.mannanlive'
+version '1.0-SNAPSHOT'
+
+dependencies {
+    compile 'org.springframework:spring-context:5.0.7.RELEASE'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}

@@ -1,0 +1,2 @@
+rootProject.name = 'settlers'
+include 'core', 'boot'
