@@ -8,3 +8,6 @@ allprojects {
         mavenCentral()
     }
 }
+
+task stage(dependsOn: ['build', 'clean'])
+build.mustRunAfter clean
