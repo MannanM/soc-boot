@@ -1,4 +1,6 @@
 build
+boot/build
+core/build
 .gradle
 .idea
 out
