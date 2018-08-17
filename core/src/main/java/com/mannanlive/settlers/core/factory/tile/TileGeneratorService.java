@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface TileGeneratorService {
     List<Tile> generate();
+    boolean appliesTo(TileGenerationStrategies strategy);
 }

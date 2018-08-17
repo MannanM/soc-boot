@@ -31,7 +31,7 @@ public class EventService {
         GameEventsMeta meta = new GameEventsMeta(player, game.getVersion(), game.getStage());
 
         Player requester = game.getPlayer(playerId);
-        List<GameEvent> events = eventGameObserver.getEvents(gameId, version);
+        List<GameEvent> events = eventGameObserver.getEvents(game, version);
 
         List<GameEventsData> list = new ArrayList<>();
         for (GameEvent event : events) {

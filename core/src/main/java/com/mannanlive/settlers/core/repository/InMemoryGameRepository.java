@@ -5,20 +5,36 @@ import com.mannanlive.settlers.core.model.game.Game;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class InMemoryGameRepository implements GameRepository {
-    public Map<Long, Game> inMemory = new HashMap<>();
+    private Map<Long, Game> inMemory = new HashMap<>();
 
-    @Autowired
-    private GameFactory gameFactory;
+    @Override
+    public Map<Long, Game> get() {
+        return inMemory;
+    }
 
+    @Override
     public Game get(long gameId) {
-        if (!inMemory.containsKey(gameId)) {
-            inMemory.put(gameId, gameFactory.createDefault(gameId));
-        }
         return inMemory.get(gameId);
+    }
+
+    @Override
+    public void add(Game newGame) {
+        inMemory.put(getNewId(), newGame);
+    }
+
+    private Long getNewId() {
+        Long maxId = 1L;
+        Optional<Long> max = inMemory.keySet().stream().reduce(Long::max);
+        if (max.isPresent()) {
+            maxId = max.get() + 1L;
+        }
+        return maxId;
     }
 }

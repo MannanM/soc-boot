@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@Deprecated
 public class GameStateExtractor {
     public List<Tile> getTiles(Game game) {
         List<Tile> tiles = new ArrayList<>();

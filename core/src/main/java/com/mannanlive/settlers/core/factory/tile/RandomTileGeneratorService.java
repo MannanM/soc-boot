@@ -19,6 +19,7 @@ public class RandomTileGeneratorService implements TileGeneratorService {
         addCommonTypes();
     }
 
+    @Override
     public List<Tile> generate() {
         //todo: copy these to new array
         Collections.shuffle(types);
@@ -36,6 +37,11 @@ public class RandomTileGeneratorService implements TileGeneratorService {
             }
         }
         return result;
+    }
+
+    @Override
+    public boolean appliesTo(TileGenerationStrategies strategy) {
+        return strategy == TileGenerationStrategies.RANDOM;
     }
 
     private void addCommonTypes() {

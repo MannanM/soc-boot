@@ -2,10 +2,12 @@ package com.mannanlive.settlers.core.factory.tile;
 
 import com.mannanlive.settlers.core.model.board.TileType;
 import com.mannanlive.settlers.core.model.board.Tile;
+import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
 
+@Service
 public class StandardTileGeneratorService implements TileGeneratorService {
     public List<Tile> generate() {
         return Arrays.asList(
@@ -29,5 +31,10 @@ public class StandardTileGeneratorService implements TileGeneratorService {
                 new Tile(TileType.WHEAT, 6),
                 new Tile(TileType.SHEEP, 11)
         );
+    }
+
+    @Override
+    public boolean appliesTo(TileGenerationStrategies strategy) {
+        return strategy == TileGenerationStrategies.STANDARD;
     }
 }

@@ -12,6 +12,14 @@ var events = (function() {
    PLACE_ROBBER: 'place the robber'
  }
 
+ function safeProcessLoad() {
+  if (IN_PROGRESS) {
+   RELOAD = true;
+  } else {
+   processLoad();
+  }
+ }
+
  function processLoad() {
    IN_PROGRESS = true;
    $('#currentEvent').text('Loading...');
@@ -59,12 +67,6 @@ var events = (function() {
  }
 
  return {
-   load: function() {
-    if (IN_PROGRESS) {
-     RELOAD = true;
-    } else {
-     processLoad();
-    }
-   }
+   load: safeProcessLoad
   };
 })();

@@ -1,18 +1,19 @@
-var GAME_ID = 100;
-var PLAYER_ID = 200;
+var GAME_ID = qs('gameId');
+var PLAYER_ID = qs('playerId');
 
 $(function() {
-    initialise();
-});
-
-function initialise() {
    $.ajax('/v1/games/' + GAME_ID + '/state')
      .done(function(result) {
        tiles.load(result.data.tiles);
        players.load(result.data.players);
-       events.load();
        actions.load();
+       refresh();
      }).fail(handleError);
+});
+
+function refresh() {
+  events.load();
+  setTimeout(refresh, 5000);
 }
 
 function handleError(xhr, status, errorThrown) {
@@ -37,4 +38,10 @@ function titleCase(str) {
   str[i] = str[i].charAt(0).toUpperCase() + str[i].slice(1);
  }
  return str.join(' ');
+}
+
+function qs(key) {
+ key = key.replace(/[*+?^$.\[\]{}()|\\\/]/g, "\\$&"); // escape RegEx meta chars
+ var match = location.search.match(new RegExp("[?&]"+key+"=([^&]+)(&|$)"));
+ return match && decodeURIComponent(match[1].replace(/\+/g, " "));
 }

@@ -1,0 +1,134 @@
+<html>
+<head>
+
+</head>
+<body>
+<h1>SoC Boot</h1>
+
+<div id="register">
+    Name: <input type="text" /> <button>Register</button>
+</div>
+<div id="welcome" style="display:none">
+    Hi <span></span>!
+    <h2>Create Game</h2>
+    <table>
+        <tr><th>Player 1</th><th>2</th><th>3</th><th>4</th></tr>
+        <tr id="playerSelect"><td>You</td>
+            <td><select id="player2"><option value="-1">AI</option></select></td>
+            <td><select id="player3"><option value="-1">AI</option></select></td>
+            <td><select id="player4"><option value="-1">AI</option></select></td>
+        </tr>
+        <tr><td colspan="4">Tile Layout: <select id="tiles">
+            <option value="RANDOM">Random</option>
+            <option value="STANDARD">Standard</option>
+        </select></td></tr>
+        <tr><td colspan="4"><button>Create</button></td></tr>
+    </table>
+</div>
+<br />
+<h2>Current Games</h2>
+<table>
+    <tr>
+        <th>Players</th><th>Games</th>
+    </tr>
+        <td>
+            <ul id="playerList">
+            </ul>
+        </td>
+        <td>
+            <ul id="gameList">
+                <li>Login to view.</li>
+            </ul>
+        </td>
+</table>
+<button id="refresh">Refresh</button>
+
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script type="text/javascript">
+var PLAYER_ID = -1;
+
+$(function() {
+    refresh();
+    $('#refresh').click(refresh);
+    $('#register button').click(function() {
+        $.ajax({ method: 'POST', url: '/v1/players/' + $('#register input').val()})
+            .done(login).fail(handleError);
+    });
+    $('#welcome button').click(createGame);
+});
+
+function refresh() {
+    $('#playerList').empty();
+    $.ajax('/v1/players').done(processPlayer).fail(handleError);
+    $('#gameList').empty();
+    $.ajax('/v1/games').done(processGames).fail(handleError);
+}
+
+function processPlayer(result) {
+    $('#playerSelect select').empty().append('<option value="ai">AI</option>');
+    $('#player3, #player4').append('<option value="no one">No One</option>');
+    for (var i = 0; i < result.data.length; i++) {
+        addPlayer(result.data[i]);
+    }
+}
+
+function addPlayer(player) {
+    $('#playerList').append('<li>' + player.name + ' (' + player.id + ')</li>');
+    if (PLAYER_ID !== player.id) {
+        $('#playerSelect select').append('<option value="' + player.id + '">' + player.name + '</option>');
+    }
+}
+
+function login(player) {
+    PLAYER_ID = player.id;
+    $('#register').hide();
+    $('#welcome span').text(player.name);
+    $('#welcome').show();
+    refresh();
+}
+
+function processGames(result) {
+   for (var i = 0; i < result.data.length; i++) {
+       addGame(result.data[i]);
+   }
+}
+
+function addGame(game) {
+    if ($.inArray(PLAYER_ID, game.playerIds) >= 0) {
+        $('#gameList').append('<li><a href="game.html?playerId=' + PLAYER_ID + '&gameId=' + game.id +
+            '" target="_blank">' + game.name + '</a></li>');
+    } else {
+        $('#gameList').append('<li>' + game.name + '</li>');
+    }
+}
+
+function createGame() {
+    var data = { playerIds : [ PLAYER_ID ],
+                 size : 1,
+                 tileStrategy: $('#tiles option:selected').val()
+               };
+    $('#playerSelect option:selected').each(function(y, x) {
+        var id = $(x).val();
+        if (id !== 'no one') {
+            data.size++;
+            if (id !== 'ai') {
+                data.playerIds.push(parseInt(id));
+            }
+        }
+    });
+
+    $.ajax({
+       method: 'POST',
+       url: '/v1/games',
+       contentType: 'application/json',
+       data: JSON.stringify(data)
+    }).done(refresh).fail(handleError);
+}
+
+function handleError(xhr, status, errorThrown) {
+    var error = jQuery.parseJSON(xhr.responseText);
+    alert(error.message);
+};
+</script>
+</body>
+</html>

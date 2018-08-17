@@ -7,7 +7,6 @@ import com.mannanlive.settlers.core.model.exception.player.NotPlayersTurnExcepti
 import com.mannanlive.settlers.core.model.exception.player.PlayerNotFoundException;
 import com.mannanlive.settlers.core.model.game.observer.CollectResourcesEvent;
 import com.mannanlive.settlers.core.model.game.observer.DiceRollEvent;
-import com.mannanlive.settlers.core.model.game.observer.DiscardExcessResourcesEvent;
 import com.mannanlive.settlers.core.model.game.observer.GameEvent;
 import com.mannanlive.settlers.core.model.game.observer.GameEventType;
 import com.mannanlive.settlers.core.model.game.observer.RoadGameEvent;
@@ -25,7 +24,6 @@ import static com.mannanlive.settlers.core.model.game.GameStage.*;
 import static java.util.Arrays.asList;
 
 public class Game extends Observable {
-    private final long gameId;
     private final Board board;
     private final List<Player> players;
     private GameStage stage = SETUP;
@@ -37,8 +35,7 @@ public class Game extends Observable {
     private AiService ai = new AiService();
     private ResourceService resourceService;
 
-    public Game(long gameId, Board board, List<Player> players) {
-        this.gameId = gameId;
+    public Game(Board board, List<Player> players) {
         this.board = board;
         this.players = players;
         currentPlayer = players.get(0);
@@ -213,10 +210,6 @@ public class Game extends Observable {
             }
         }
         throw new PlayerNotFoundException(player);
-    }
-
-    public long getGameId() {
-        return gameId;
     }
 
     public List<Player> getPlayers() {

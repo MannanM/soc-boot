@@ -12,7 +12,7 @@ import java.util.Observer;
 
 @Service
 public class EventGameObserver implements Observer {
-    private Map<Long, Map<Integer, GameEvent>> inMemory = new HashMap<>();
+    private Map<Game, Map<Integer, GameEvent>> inMemory = new HashMap<>();
 
     @Override
     public void update(Observable o, Object arg) {
@@ -23,9 +23,9 @@ public class EventGameObserver implements Observer {
         System.out.println(arg);
     }
 
-    public List<GameEvent> getEvents(long gameId, int from) {
+    public List<GameEvent> getEvents(Game game, int from) {
         List<GameEvent> result = new ArrayList<>();
-        Map<Integer, GameEvent> events = inMemory.get(gameId);
+        Map<Integer, GameEvent> events = inMemory.get(game);
         for (Map.Entry<Integer, GameEvent> eventEntry : events.entrySet()) {
             if (eventEntry.getKey() > from) {
                 result.add(eventEntry.getValue());
@@ -35,9 +35,9 @@ public class EventGameObserver implements Observer {
     }
 
     private Map<Integer, GameEvent> safeGetGameEvents(Game game) {
-        if (!inMemory.containsKey(game.getGameId())) {
-            inMemory.put(game.getGameId(), new HashMap<>());
+        if (!inMemory.containsKey(game)) {
+            inMemory.put(game, new HashMap<>());
         }
-        return inMemory.get(game.getGameId());
+        return inMemory.get(game);
     }
 }
