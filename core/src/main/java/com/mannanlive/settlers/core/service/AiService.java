@@ -11,13 +11,13 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class AiService {
-    public void buildSetupSettlement(Player player,  Game game) {
+    public void buildSettlement(Player player, Game game) {
         List<Node> nodes = game.getBoard().getAvailableSettlement(player);
         Node node = nodes.get(random(nodes));
         game.buildOnNode(player, node.getTileId(), node.getNodeId());
     }
 
-    public void buildSetupRoad(Player player, Game game) {
+    public void buildRoad(Player player, Game game) {
         List<Connector> connectors = game.getBoard().getAvailableRoads(player);
         Connector connector = connectors.get(random(connectors));
         game.buildOnConnector(player, connector.getTileId(), connector.getConnectorId());
@@ -45,6 +45,14 @@ public class AiService {
         int discard = resources.size() / 2;
         List<TileType> discardList = resources.subList(0, discard);
         game.discardResources(player, discardList);
+    }
+
+    public void buildPhase(Player player, Game game) {
+        if (game.canBuildRoad(player)) {
+            game.buildRoad(player);
+        } else {
+            game.endBuildStage(player);
+        }
     }
 
     private int random(List list) {

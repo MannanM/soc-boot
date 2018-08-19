@@ -50,11 +50,15 @@ public class Node {
     }
 
     public boolean hasRoads() {
-        return adjacentConnectors.stream().anyMatch(connector -> connector.getOwnedBy() != null);
+        return adjacentConnectors.stream().anyMatch(connector -> connector.getOwner() != null);
     }
 
     public boolean isOwnedByOtherPlayer(Player player) {
         return ownedBy != null && ownedBy != player;
+    }
+
+    public List<Connector> getAdjacentConnectors() {
+        return adjacentConnectors;
     }
 
     public void addAdjacentTile(Tile tile) {

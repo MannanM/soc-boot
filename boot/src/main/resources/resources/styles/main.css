@@ -21,6 +21,7 @@ td, th {
  -ms-transition: background 1.0s linear;
  -o-transition: background 1.0s linear;
  transition: background 1.0s linear;
+ cursor: crosshair;
 }
 .sea {
  background-color: #006994;
@@ -150,6 +151,11 @@ td, th {
 }
 #eventList div:first-child {
  color: black;
+}
+#help {
+ cursor: help;
+ color: white;
+ background-color: blue;
 }
 
 /* Actions */

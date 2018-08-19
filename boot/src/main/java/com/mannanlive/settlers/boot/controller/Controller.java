@@ -78,6 +78,12 @@ public class Controller {
             case ROLL:
                 game.roll(player);
                 break;
+            case END:
+                game.endBuildStage(player);
+                break;
+            case ROAD:
+                game.buildRoad(player);
+                break;
             default:
                 System.out.println(action);
         }

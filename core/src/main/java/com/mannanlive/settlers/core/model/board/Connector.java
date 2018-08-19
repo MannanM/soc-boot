@@ -6,11 +6,13 @@ import com.mannanlive.settlers.core.model.exception.road.RoadException;
 import com.mannanlive.settlers.core.model.exception.road.RoadMustBeAdjacentToSettlementException;
 import com.mannanlive.settlers.core.model.player.Player;
 
+import java.util.Arrays;
+
 public class Connector {
     private final int tileId;
     private final int connectorId;
     private Node[] adjacentNodes = new Node[2];
-    private Player ownedBy;
+    private Player owner;
 
     public Connector(int tileId, int connectorId, Node adjacentNode0, Node adjacentNode1) {
         this.tileId = tileId;
@@ -23,7 +25,7 @@ public class Connector {
 
     public void buildRoad(Player player, boolean initialSettlement) {
         tryBuildRoad(player, initialSettlement);
-        ownedBy = player;
+        owner = player;
     }
 
     public boolean canBuildRoad(Player player, boolean initialSettlement) {
@@ -36,19 +38,29 @@ public class Connector {
     }
 
     private void tryBuildRoad(Player player, boolean initialSettlement) {
-        if (ownedBy != null) {
+        if (owner != null) {
             throw new RoadAlreadyBuiltException(this);
         }
-        if (!playerOwnsSettlement(player)) {
+        if (!(playerOwnsSettlement(player) || playerOwnsJoiningRoad(player))) {
             throw new CanNotBuildRoadException(this);
         }
-        if (initialSettlement && playerBuildingOnSettlementWithARoad(player)) {
-            throw new RoadMustBeAdjacentToSettlementException(this);
+        if (initialSettlement) {
+            if (playerBuildingOnSettlementWithARoad(player) || !playerOwnsSettlement(player)) {
+                throw new RoadMustBeAdjacentToSettlementException(this);
+            }
         }
     }
 
     private boolean playerOwnsSettlement(Player player) {
         return playerOwnsSettlement(player, 0) || playerOwnsSettlement(player, 1);
+    }
+
+    private boolean playerOwnsJoiningRoad(Player player) {
+        return Arrays.stream(adjacentNodes)
+                .filter(node -> !node.isOwnedByOtherPlayer(player))
+                .flatMap(node -> node.getAdjacentConnectors().stream())
+                .filter(road -> player == road.getOwner())
+                .count() > 0;
     }
 
     private boolean playerBuildingOnSettlementWithARoad(Player player) {
@@ -79,7 +91,7 @@ public class Connector {
         return connectorId;
     }
 
-    public Player getOwnedBy() {
-        return ownedBy;
+    public Player getOwner() {
+        return owner;
     }
 }

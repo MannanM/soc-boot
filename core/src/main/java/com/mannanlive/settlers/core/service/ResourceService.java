@@ -2,6 +2,7 @@ package com.mannanlive.settlers.core.service;
 
 import com.mannanlive.settlers.core.model.Roll;
 import com.mannanlive.settlers.core.model.board.Board;
+import com.mannanlive.settlers.core.model.board.BuildActions;
 import com.mannanlive.settlers.core.model.board.Building;
 import com.mannanlive.settlers.core.model.board.Node;
 import com.mannanlive.settlers.core.model.board.Tile;
@@ -155,6 +156,22 @@ public class ResourceService {
         Map<TileType, Long> playersResource = resources.get(player);
         newResources.forEach((k, v) -> playersResource.merge(k, v, Long::sum));
         return new CollectResourcesEvent(newResources, player);
+    }
+
+    public void hasSufficientResources(Player player, BuildActions action) {
+        Map<TileType, Long> playerResources = resources.get(player);
+        for (Map.Entry<TileType, Long> entry : action.getResources().entrySet()) {
+            TileType type = entry.getKey();
+            Long required = entry.getValue() * -1L;
+            Long playerResourceCount = playerResources.get(type);
+            if (playerResourceCount < required) {
+                throw new NotEnoughResourceException(required, playerResourceCount, type);
+            }
+        }
+    }
+
+    public void buy(Player player, BuildActions action) {
+        mergeResources(player, action.getResources());
     }
 
     private static class Tuple {

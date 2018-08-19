@@ -24,25 +24,34 @@ public class Board {
 
     public SettlementGameEvent buildSettlement(Player player, int tileId, int nodeId) {
         Node node = gameTiles.get(tileId).getNode(nodeId);
-        node.buildSettlement(player, isSetupPhase(player));
+        node.buildSettlement(player, isSetupPhase(getPlayerBuildings(player)));
         return new SettlementGameEvent(node);
     }
 
     public RoadGameEvent buildRoad(Player player, int tileId, int connectorId) {
         Connector connector = gameTiles.get(tileId).getConnector(connectorId);
-        connector.buildRoad(player, isSetupPhase(player));
+        connector.buildRoad(player, isSetupPhase(getPlayerRoads(player)));
         return new RoadGameEvent(connector);
     }
 
     public List<Node> getPlayerBuildings(Player player) {
         return gameTiles.stream()
-                .flatMap(gameTile -> gameTile.getPlayerNodes(player).stream())
+                .flatMap(GameTile::getNodes)
+                .filter(node -> node.getOwner() == player)
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
+    public List<Connector> getPlayerRoads(Player player) {
+        return gameTiles.stream()
+                .flatMap(GameTile::getConnectors)
+                .filter(connector -> connector.getOwner() == player)
                 .distinct()
                 .collect(Collectors.toList());
     }
 
     public List<Connector> getAvailableRoads(Player player) {
-        boolean setupPhase = isSetupPhase(player);
+        boolean setupPhase = isSetupPhase(getPlayerRoads(player));
         return gameTiles.stream()
                 .flatMap(GameTile::getConnectors)
                 .filter(connector -> connector.canBuildRoad(player, setupPhase))
@@ -51,7 +60,7 @@ public class Board {
     }
 
     public List<Node> getAvailableSettlement(Player player) {
-        boolean setupPhase = isSetupPhase(player);
+        boolean setupPhase = isSetupPhase(getPlayerBuildings(player));
         return gameTiles.stream()
                 .flatMap(GameTile::getNodes)
                 .filter(node -> node.canBuildSettlement(player, setupPhase))
@@ -59,8 +68,8 @@ public class Board {
                 .collect(Collectors.toList());
     }
 
-    private boolean isSetupPhase(Player player) {
-        return getPlayerBuildings(player).size() <= 2;
+    private boolean isSetupPhase(List count) {
+        return count.size() < 2;
     }
 
     public RobberGameEvent placeRobber(int tileId) {

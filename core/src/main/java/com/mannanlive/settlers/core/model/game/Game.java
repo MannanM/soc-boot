@@ -1,12 +1,15 @@
 package com.mannanlive.settlers.core.model.game;
 
 import com.mannanlive.settlers.core.model.board.Board;
+import com.mannanlive.settlers.core.model.board.BuildActions;
 import com.mannanlive.settlers.core.model.board.TileType;
+import com.mannanlive.settlers.core.model.exception.GameException;
 import com.mannanlive.settlers.core.model.exception.player.InvalidActionException;
 import com.mannanlive.settlers.core.model.exception.player.NotPlayersTurnException;
 import com.mannanlive.settlers.core.model.exception.player.PlayerNotFoundException;
 import com.mannanlive.settlers.core.model.game.observer.CollectResourcesEvent;
 import com.mannanlive.settlers.core.model.game.observer.DiceRollEvent;
+import com.mannanlive.settlers.core.model.game.observer.BuildEvent;
 import com.mannanlive.settlers.core.model.game.observer.GameEvent;
 import com.mannanlive.settlers.core.model.game.observer.GameEventType;
 import com.mannanlive.settlers.core.model.game.observer.RoadGameEvent;
@@ -76,32 +79,40 @@ public class Game extends Observable {
                 }
                 break;
             case ROLL:
-                GameEvent lastEvent = events[events.length - 1];
-                if (lastEvent.getEvent() == GameEventType.ROLL && ((DiceRollEvent)lastEvent).isRobber()) {
-                    stage = PLACE_ROBBER;
-                } else {
+                stage = hasToPlaceRobber(events) ? PLACE_ROBBER : BUILD;
+                break;
+            case BUILD:
+                BuildEvent event = (BuildEvent)events[0];
+                stage = event.getStage();
+                if (stage == ROLL) {
                     currentPlayer = players.get((players.indexOf(currentPlayer) + 1) % players.size());
                 }
+                break;
+            case BUILD_ROAD:
+                stage = BUILD;
                 break;
             case PLACE_ROBBER:
                 stage = STEAL_RESOURCE;
                 break;
             case STEAL_RESOURCE:
-                stage = DISCARD_EXCESS_CARDS;
+                stage = DISCARD_EXCESS_RESOURCES;
                 triggeringPlayer = currentPlayer;
                 break;
-            case DISCARD_EXCESS_CARDS:
+            case DISCARD_EXCESS_RESOURCES:
                 currentPlayer = players.get((players.indexOf(currentPlayer) + 1) % players.size());
                 if (triggeringPlayer == currentPlayer) {
-                    stage = ROLL;
-                    //remove this if you want to stay on triggered player
-                    currentPlayer = players.get((players.indexOf(currentPlayer) + 1) % players.size());
+                    stage = BUILD;
                 }
                 break;
             default:
                 throw new IllegalArgumentException("Error: " + stage);
         }
         processStep();
+    }
+
+    private boolean hasToPlaceRobber(GameEvent... events) {
+        GameEvent lastEvent = events[events.length - 1];
+        return lastEvent.getEvent() == GameEventType.ROLL && ((DiceRollEvent) lastEvent).isRobber();
     }
 
     private void broadcastEvent(GameEvent event) {
@@ -118,7 +129,8 @@ public class Game extends Observable {
                 return;
             }
         }
-        if (stage == DISCARD_EXCESS_CARDS) {
+        //todo: fix this and let the user choose what resources to discard
+        if (stage == DISCARD_EXCESS_RESOURCES) {
             if (resourceService.hasExcessResources(currentPlayer)) {
                 ai.discardExcessCards(currentPlayer, this);
                 return;
@@ -133,11 +145,12 @@ public class Game extends Observable {
         switch (stage) {
             case SETUP_SECOND_SETTLEMENT:
             case SETUP_FIRST_SETTLEMENT:
-                ai.buildSetupSettlement(currentPlayer, this);
+                ai.buildSettlement(currentPlayer, this);
                 break;
             case SETUP_FIRST_ROAD:
             case SETUP_SECOND_ROAD:
-                ai.buildSetupRoad(currentPlayer, this);
+            case BUILD_ROAD:
+                ai.buildRoad(currentPlayer, this);
                 break;
             case ROLL:
                 roll(currentPlayer);
@@ -148,8 +161,11 @@ public class Game extends Observable {
             case STEAL_RESOURCE:
                 ai.stealResource(currentPlayer, this);
                 break;
-            case DISCARD_EXCESS_CARDS:
+            case DISCARD_EXCESS_RESOURCES:
                 ai.discardExcessCards(currentPlayer, this);
+                break;
+            case BUILD:
+                ai.buildPhase(currentPlayer, this);
                 break;
         }
     }
@@ -167,7 +183,7 @@ public class Game extends Observable {
     }
 
     public void buildOnConnector(Player player, int tileId, int connectorId) {
-        checkStageAndPlayer(player, SETUP_FIRST_ROAD, SETUP_SECOND_ROAD);
+        checkStageAndPlayer(player, SETUP_FIRST_ROAD, SETUP_SECOND_ROAD, BUILD_ROAD);
         RoadGameEvent event = board.buildRoad(player, tileId, connectorId);
         nextStage(event);
     }
@@ -189,8 +205,36 @@ public class Game extends Observable {
     }
 
     public void discardResources(Player player, List<TileType> discardList) {
-        checkStageAndPlayer(player, DISCARD_EXCESS_CARDS);
+        checkStageAndPlayer(player, DISCARD_EXCESS_RESOURCES);
         nextStage(resourceService.discardResources(player, discardList));
+    }
+
+    public void endBuildStage(Player player) {
+        checkStageAndPlayer(player, BUILD);
+        nextStage(new BuildEvent());
+    }
+
+    public void buildRoad(Player player) {
+        checkRoadRequirements(player);
+        resourceService.buy(player, BuildActions.ROAD);
+        nextStage(new BuildEvent(GameStage.BUILD_ROAD));
+    }
+
+    public boolean canBuildRoad(Player player) {
+        try {
+            checkRoadRequirements(player);
+            return true;
+        } catch (GameException ignore) {
+            return false;
+        }
+    }
+
+    private void checkRoadRequirements(Player player) {
+        checkStageAndPlayer(player, BUILD);
+        resourceService.hasSufficientResources(player, BuildActions.ROAD);
+        if (board.getAvailableRoads(player).isEmpty()) {
+            throw new GameException("You can't build a road as there would be now where to place it.");
+        }
     }
 
     private void checkStageAndPlayer(Player player, GameStage... stages) {
