@@ -6,6 +6,7 @@ import com.mannanlive.settlers.boot.model.GameDetails;
 import com.mannanlive.settlers.boot.model.GameEvents;
 import com.mannanlive.settlers.boot.model.GameState;
 import com.mannanlive.settlers.boot.service.event.EventService;
+import com.mannanlive.settlers.core.model.board.BuildActions;
 import com.mannanlive.settlers.core.model.game.Game;
 import com.mannanlive.settlers.core.model.game.GameStage;
 import com.mannanlive.settlers.core.model.player.Player;
@@ -82,8 +83,10 @@ public class Controller {
                 game.endBuildStage(player);
                 break;
             case ROAD:
-                game.buildRoad(player);
+                game.build(player, BuildActions.ROAD);
                 break;
+            case SETTLEMENT:
+                game.build(player, BuildActions.SETTLEMENT);
             default:
                 System.out.println(action);
         }

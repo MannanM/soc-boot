@@ -1,8 +1,10 @@
 package com.mannanlive.settlers.core.service;
 
+import com.mannanlive.settlers.core.model.board.BuildActions;
 import com.mannanlive.settlers.core.model.board.Connector;
 import com.mannanlive.settlers.core.model.board.Node;
 import com.mannanlive.settlers.core.model.board.TileType;
+import com.mannanlive.settlers.core.model.exception.GameException;
 import com.mannanlive.settlers.core.model.game.Game;
 import com.mannanlive.settlers.core.model.player.Player;
 
@@ -48,10 +50,22 @@ public class AiService {
     }
 
     public void buildPhase(Player player, Game game) {
-        if (game.canBuildRoad(player)) {
-            game.buildRoad(player);
-        } else {
-            game.endBuildStage(player);
+        if (buildIfPossible(player, game, BuildActions.SETTLEMENT)) {
+            return;
+        }
+        if (buildIfPossible(player, game, BuildActions.ROAD)) {
+            return;
+        }
+        game.endBuildStage(player);
+    }
+
+    private boolean buildIfPossible(Player player, Game game, BuildActions action) {
+        try {
+            game.checkRequirements(player, action);
+            game.build(player, action);
+            return true;
+        } catch (GameException ignore) {
+            return false;
         }
     }
 

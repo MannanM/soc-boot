@@ -2,6 +2,7 @@ package com.mannanlive.settlers.core.model.board;
 
 import com.mannanlive.settlers.core.model.exception.settlement.BuildingAlreadyExistsException;
 import com.mannanlive.settlers.core.model.exception.settlement.NearbySettlementException;
+import com.mannanlive.settlers.core.model.exception.settlement.NeedARoadException;
 import com.mannanlive.settlers.core.model.exception.settlement.SettlementException;
 import com.mannanlive.settlers.core.model.player.Player;
 
@@ -37,15 +38,22 @@ public class Node {
         building = Building.SETTLEMENT;
     }
 
-    public void tryBuildSettlement(Player player, boolean setupPhase) {
+    private void tryBuildSettlement(Player player, boolean setupPhase) {
         if (building != Building.NOTHING) {
             throw new BuildingAlreadyExistsException(this);
         }
+        boolean hasNearbyRoad = false;
         for (Connector adjacentConnector : adjacentConnectors) {
+            if (adjacentConnector.getOwner() == player) {
+                hasNearbyRoad = true;
+            }
             Node adjacentNode = adjacentConnector.getOtherNode(this);
             if (adjacentNode.getBuilding() != Building.NOTHING) {
                 throw new NearbySettlementException(adjacentNode);
             }
+        }
+        if (!setupPhase && !hasNearbyRoad) {
+            throw new NeedARoadException(this);
         }
     }
 

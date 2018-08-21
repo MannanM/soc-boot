@@ -50,6 +50,16 @@ public class Board {
                 .collect(Collectors.toList());
     }
 
+
+    public List getAvailable(Player player, BuildActions action) {
+        switch (action) {
+            case ROAD: return getAvailableRoads(player);
+            case SETTLEMENT: return getAvailableSettlement(player);
+            default:
+                throw new IllegalArgumentException("Invalid action: " + action);
+        }
+    }
+
     public List<Connector> getAvailableRoads(Player player) {
         boolean setupPhase = isSetupPhase(getPlayerRoads(player));
         return gameTiles.stream()

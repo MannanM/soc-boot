@@ -19,7 +19,8 @@ var events = (function() {
    PLACE_ROBBER: { text : 'place the robber', help: HELP.PLACE_ROBBER },
    STEAL_RESOURCE: { text : 'steal a resource', help: HELP.STEAL_RESOURCE},
    BUILD: { text : 'finish their build phase', help: HELP.BUILD },
-   BUILD_ROAD: { text : 'build a road', help: HELP.ROAD }
+   BUILD_ROAD: { text : 'build a road', help: HELP.ROAD },
+   BUILD_SETTLEMENT: { text : 'construct a settlement', help: HELP.SETTLEMENT }
  };
 
  function safeProcessLoad() {

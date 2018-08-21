@@ -88,6 +88,7 @@ public class Game extends Observable {
                     currentPlayer = players.get((players.indexOf(currentPlayer) + 1) % players.size());
                 }
                 break;
+            case BUILD_SETTLEMENT:
             case BUILD_ROAD:
                 stage = BUILD;
                 break;
@@ -145,6 +146,7 @@ public class Game extends Observable {
         switch (stage) {
             case SETUP_SECOND_SETTLEMENT:
             case SETUP_FIRST_SETTLEMENT:
+            case BUILD_SETTLEMENT:
                 ai.buildSettlement(currentPlayer, this);
                 break;
             case SETUP_FIRST_ROAD:
@@ -171,7 +173,7 @@ public class Game extends Observable {
     }
 
     public void buildOnNode(Player player, int tileId, int nodeId) {
-        checkStageAndPlayer(player, SETUP_FIRST_SETTLEMENT, SETUP_SECOND_SETTLEMENT);
+        checkStageAndPlayer(player, SETUP_FIRST_SETTLEMENT, SETUP_SECOND_SETTLEMENT, BUILD_SETTLEMENT);
         SettlementGameEvent event = board.buildSettlement(player, tileId, nodeId);
         if (stage == SETUP_SECOND_SETTLEMENT) {
             broadcastEvent(event);
@@ -214,26 +216,18 @@ public class Game extends Observable {
         nextStage(new BuildEvent());
     }
 
-    public void buildRoad(Player player) {
-        checkRoadRequirements(player);
-        resourceService.buy(player, BuildActions.ROAD);
-        nextStage(new BuildEvent(GameStage.BUILD_ROAD));
+    public void build(Player player, BuildActions action) {
+        checkRequirements(player, action);
+        resourceService.buy(player, action);
+        nextStage(new BuildEvent(action.getStage()));
     }
 
-    public boolean canBuildRoad(Player player) {
-        try {
-            checkRoadRequirements(player);
-            return true;
-        } catch (GameException ignore) {
-            return false;
-        }
-    }
-
-    private void checkRoadRequirements(Player player) {
+    public void checkRequirements(Player player, BuildActions action) {
         checkStageAndPlayer(player, BUILD);
-        resourceService.hasSufficientResources(player, BuildActions.ROAD);
-        if (board.getAvailableRoads(player).isEmpty()) {
-            throw new GameException("You can't build a road as there would be now where to place it.");
+        resourceService.hasSufficientResources(player, action);
+        if (board.getAvailable(player, action).isEmpty()) {
+            throw new GameException(String.format("You can't build a %s as there would be now where to place it.",
+                    action.name().toLowerCase()));
         }
     }
 
