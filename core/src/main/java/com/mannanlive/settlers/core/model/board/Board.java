@@ -3,6 +3,7 @@ package com.mannanlive.settlers.core.model.board;
 import com.mannanlive.settlers.core.model.exception.GameException;
 import com.mannanlive.settlers.core.model.exception.RobberMustBeMovedException;
 import com.mannanlive.settlers.core.model.game.GameTile;
+import com.mannanlive.settlers.core.model.game.observer.GameEvent;
 import com.mannanlive.settlers.core.model.game.observer.RoadGameEvent;
 import com.mannanlive.settlers.core.model.game.observer.RobberGameEvent;
 import com.mannanlive.settlers.core.model.game.observer.SettlementGameEvent;
@@ -34,6 +35,12 @@ public class Board {
         return new RoadGameEvent(connector);
     }
 
+    public GameEvent buildCity(Player player, int tileId, int nodeId) {
+        Node node = gameTiles.get(tileId).getNode(nodeId);
+        node.buildCity(player);
+        return new SettlementGameEvent(node);
+    }
+
     public List<Node> getPlayerBuildings(Player player) {
         return gameTiles.stream()
                 .flatMap(GameTile::getNodes)
@@ -41,6 +48,7 @@ public class Board {
                 .distinct()
                 .collect(Collectors.toList());
     }
+
 
     public List<Connector> getPlayerRoads(Player player) {
         return gameTiles.stream()
@@ -50,11 +58,11 @@ public class Board {
                 .collect(Collectors.toList());
     }
 
-
     public List getAvailable(Player player, BuildActions action) {
         switch (action) {
             case ROAD: return getAvailableRoads(player);
-            case SETTLEMENT: return getAvailableSettlement(player);
+            case SETTLEMENT: return getAvailableSettlements(player);
+            case CITY: return getAvailableCities(player);
             default:
                 throw new IllegalArgumentException("Invalid action: " + action);
         }
@@ -69,11 +77,19 @@ public class Board {
                 .collect(Collectors.toList());
     }
 
-    public List<Node> getAvailableSettlement(Player player) {
+    public List<Node> getAvailableSettlements(Player player) {
         boolean setupPhase = isSetupPhase(getPlayerBuildings(player));
         return gameTiles.stream()
                 .flatMap(GameTile::getNodes)
                 .filter(node -> node.canBuildSettlement(player, setupPhase))
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
+    public List<Node> getAvailableCities(Player player) {
+        return gameTiles.stream()
+                .flatMap(GameTile::getNodes)
+                .filter(node -> node.getOwner() == player && node.getBuilding() == Building.SETTLEMENT)
                 .distinct()
                 .collect(Collectors.toList());
     }

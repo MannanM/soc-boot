@@ -31,6 +31,10 @@ var players = (function() {
   return YOU == playerId;
  }
 
+ function processGetName(playerId) {
+  return PLAYERS[playerId].name;
+ }
+
  function processFormat(inputString) {
   var result = inputString;
   PLAYERS.forEach(function(player, index) {
@@ -40,17 +44,10 @@ var players = (function() {
  }
 
  return {
-   load: function(playerData) {
-    processLoad(playerData);
-   },
-   select: function(playerId) {
-    processSelect(playerId);
-   },
-   isPlayer: function(playerId) {
-    return processIsPlayer(playerId);
-   },
-   format: function(inputString) {
-    return processFormat(inputString);
-   }
+   load: processLoad,
+   select: processSelect,
+   isPlayer: processIsPlayer,
+   getName: processGetName,
+   format: processFormat
   };
 })();

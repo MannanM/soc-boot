@@ -44,7 +44,7 @@ public class BuildEventTranslator implements EventTranslator {
         if (action == null) {
             return format("@p%d ended their turn", player);
         }
-        return format("@p%d bought a %s", player, action.name().toLowerCase());
+        return format("@p%d spent resources to purchase a %s", player, action.name().toLowerCase());
     }
 
 }

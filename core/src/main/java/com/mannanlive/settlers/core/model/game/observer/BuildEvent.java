@@ -4,27 +4,21 @@ import com.mannanlive.settlers.core.model.board.BuildActions;
 import com.mannanlive.settlers.core.model.game.GameStage;
 
 public class BuildEvent extends GameEvent {
-    private GameStage stage;
+    private BuildActions action;
 
     public BuildEvent() {
-        stage = GameStage.ROLL;
     }
 
-    public BuildEvent(GameStage action) {
-        this.stage = action;
+    public BuildEvent(BuildActions action) {
+        this.action = action;
     }
 
     public GameStage getStage() {
-        return stage;
+        return action == null ? GameStage.ROLL : action.getStage();
     }
 
     public BuildActions getAction() {
-        switch (stage) {
-            case BUILD_ROAD:
-                return BuildActions.ROAD;
-            default:
-                return null;
-        }
+        return action;
     }
 
     @Override
@@ -34,6 +28,6 @@ public class BuildEvent extends GameEvent {
 
     @Override
     public String toString() {
-        return getPlayer().getName() + " finished their build stage";
+        return getPlayer().getName() + " " + (action == null ? "ended their turn" : "purchased a " + action.name());
     }
 }

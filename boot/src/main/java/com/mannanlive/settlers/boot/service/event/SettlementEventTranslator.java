@@ -1,6 +1,7 @@
 package com.mannanlive.settlers.boot.service.event;
 
 import com.mannanlive.settlers.boot.model.GameEventsData;
+import com.mannanlive.settlers.core.model.board.Building;
 import com.mannanlive.settlers.core.model.board.Node;
 import com.mannanlive.settlers.core.model.board.Tile;
 import com.mannanlive.settlers.core.model.board.TileType;
@@ -22,12 +23,18 @@ public class SettlementEventTranslator implements EventTranslator {
 
     public GameEventsData translate(GameEvent gameEvent, int player, List<Player> players, Player requester) {
         Node node = ((SettlementGameEvent) gameEvent).getNode();
-        GameEventsData data = new GameEventsData("@p" + player + " has built a settlement " +
-                getTileText(node.getAdjacentTiles()), player);
+        GameEventsData data = new GameEventsData("@p" + player + getText(node), player);
         data.setTileId(node.getTileId());
         data.setPosition(node.getNodeId());
         data.setBuilding(node.getBuilding().toString());
         return data;
+    }
+
+    private String getText(Node node) {
+        if (node.getBuilding() == Building.SETTLEMENT) {
+            return " built a settlement " + getTileText(node.getAdjacentTiles());
+        }
+        return " upgraded their settlement into a city";
     }
 
     private String getTileText(List<Tile> tiles) {

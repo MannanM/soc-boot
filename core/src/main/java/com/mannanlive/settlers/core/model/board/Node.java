@@ -1,5 +1,7 @@
 package com.mannanlive.settlers.core.model.board;
 
+import com.mannanlive.settlers.core.model.exception.city.BuildOnSettlementOnlyException;
+import com.mannanlive.settlers.core.model.exception.city.OtherPlayersSettlementException;
 import com.mannanlive.settlers.core.model.exception.settlement.BuildingAlreadyExistsException;
 import com.mannanlive.settlers.core.model.exception.settlement.NearbySettlementException;
 import com.mannanlive.settlers.core.model.exception.settlement.NeedARoadException;
@@ -56,6 +58,21 @@ public class Node {
             throw new NeedARoadException(this);
         }
     }
+
+    public void buildCity(Player player) {
+        tryBuildCity(player);
+        building = Building.CITY;
+    }
+
+    private void tryBuildCity(Player player) {
+        if (building != Building.SETTLEMENT) {
+            throw new BuildOnSettlementOnlyException(this);
+        }
+        if (ownedBy != player) {
+            throw new OtherPlayersSettlementException(this);
+        }
+    }
+
 
     public boolean hasRoads() {
         return adjacentConnectors.stream().anyMatch(connector -> connector.getOwner() != null);

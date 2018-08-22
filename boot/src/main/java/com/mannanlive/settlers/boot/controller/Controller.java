@@ -87,8 +87,13 @@ public class Controller {
                 break;
             case SETTLEMENT:
                 game.build(player, BuildActions.SETTLEMENT);
+                break;
+            case CITY:
+                game.build(player, BuildActions.CITY);
+                break;
             default:
                 System.out.println(action);
+                break;
         }
     }
 }

@@ -14,7 +14,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class AiService {
     public void buildSettlement(Player player, Game game) {
-        List<Node> nodes = game.getBoard().getAvailableSettlement(player);
+        List<Node> nodes = game.getBoard().getAvailableSettlements(player);
         Node node = nodes.get(random(nodes));
         game.buildOnNode(player, node.getTileId(), node.getNodeId());
     }
@@ -49,8 +49,17 @@ public class AiService {
         game.discardResources(player, discardList);
     }
 
+    public void buildCity(Player player, Game game) {
+        List<Node> nodes = game.getBoard().getAvailableCities(player);
+        Node node = nodes.get(random(nodes));
+        game.buildOnNode(player, node.getTileId(), node.getNodeId());
+    }
+
     public void buildPhase(Player player, Game game) {
         if (buildIfPossible(player, game, BuildActions.SETTLEMENT)) {
+            return;
+        }
+        if (buildIfPossible(player, game, BuildActions.CITY)) {
             return;
         }
         if (buildIfPossible(player, game, BuildActions.ROAD)) {

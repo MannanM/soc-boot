@@ -90,6 +90,7 @@ public class Game extends Observable {
                 break;
             case BUILD_SETTLEMENT:
             case BUILD_ROAD:
+            case BUILD_CITY:
                 stage = BUILD;
                 break;
             case PLACE_ROBBER:
@@ -169,10 +170,18 @@ public class Game extends Observable {
             case BUILD:
                 ai.buildPhase(currentPlayer, this);
                 break;
+            case BUILD_CITY:
+                ai.buildCity(currentPlayer, this);
+                break;
         }
     }
 
     public void buildOnNode(Player player, int tileId, int nodeId) {
+        if (stage == BUILD_CITY) {
+            checkStageAndPlayer(player, BUILD_CITY);
+            nextStage(board.buildCity(player, tileId, nodeId));
+            return;
+        }
         checkStageAndPlayer(player, SETUP_FIRST_SETTLEMENT, SETUP_SECOND_SETTLEMENT, BUILD_SETTLEMENT);
         SettlementGameEvent event = board.buildSettlement(player, tileId, nodeId);
         if (stage == SETUP_SECOND_SETTLEMENT) {
@@ -219,12 +228,14 @@ public class Game extends Observable {
     public void build(Player player, BuildActions action) {
         checkRequirements(player, action);
         resourceService.buy(player, action);
-        nextStage(new BuildEvent(action.getStage()));
+        nextStage(new BuildEvent(action));
     }
 
     public void checkRequirements(Player player, BuildActions action) {
         checkStageAndPlayer(player, BUILD);
+//        if (!player.isHuman()) {
         resourceService.hasSufficientResources(player, action);
+//        }
         if (board.getAvailable(player, action).isEmpty()) {
             throw new GameException(String.format("You can't build a %s as there would be now where to place it.",
                     action.name().toLowerCase()));
@@ -233,7 +244,7 @@ public class Game extends Observable {
 
     private void checkStageAndPlayer(Player player, GameStage... stages) {
         if (!asList(stages).contains(stage)) {
-            throw new InvalidActionException(stage);
+            throw new InvalidActionException(stage, stages);
         }
         if (currentPlayer != player) {
             throw new NotPlayersTurnException(currentPlayer, player);

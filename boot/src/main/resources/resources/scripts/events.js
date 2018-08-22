@@ -4,6 +4,7 @@ var events = (function() {
  var RELOAD = false;
  var HELP = {
    SETTLEMENT: 'To build a settlement, click on an available unoccupied settlement: o',
+   CITY: 'To build a city, click on a settlement you own: O',
    ROAD: 'To build a road, click on an available unoccupied road: /, \\, |',
    ROLL: 'To roll the dice, click on the Roll Dice button',
    PLACE_ROBBER: 'To place the robber, click on a tile',
@@ -20,7 +21,8 @@ var events = (function() {
    STEAL_RESOURCE: { text : 'steal a resource', help: HELP.STEAL_RESOURCE},
    BUILD: { text : 'finish their build phase', help: HELP.BUILD },
    BUILD_ROAD: { text : 'build a road', help: HELP.ROAD },
-   BUILD_SETTLEMENT: { text : 'construct a settlement', help: HELP.SETTLEMENT }
+   BUILD_SETTLEMENT: { text : 'construct a settlement', help: HELP.SETTLEMENT },
+   BUILD_CITY: { text : 'develop a settlement into a city', help: HELP.CITY }
  };
 
  function safeProcessLoad() {
@@ -46,10 +48,20 @@ var events = (function() {
        $('#eventList').prepend('<div>' + format(event.message) + '.</div>');
        switch (event.building) {
         case 'SETTLEMENT':
-           $('#t' + pad(event.tileId, 2) + 'n' + event.position).addClass('player' + event.playerId).text('x');
+           $('#t' + pad(event.tileId, 2) + 'n' + event.position)
+             .addClass('player' + event.playerId)
+             .text('O')
+             .attr('title', players.getName(event.playerId) + "'s settlement");
+           break;
+        case 'CITY':
+           $('#t' + pad(event.tileId, 2) + 'n' + event.position)
+             .text('X')
+             .attr('title', players.getName(event.playerId) + "'s city");
            break;
         case 'ROAD':
-           $('#t' + pad(event.tileId, 2) + 'c' + event.position).addClass('player' + event.playerId);
+           $('#t' + pad(event.tileId, 2) + 'c' + event.position)
+             .addClass('player' + event.playerId)
+             .attr('title', players.getName(event.playerId) + "'s road");
            break;
         case 'ROBBER':
            tiles.robber(event.tileId);
